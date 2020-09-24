@@ -6,7 +6,7 @@ vgg19 = tf.keras.applications.VGG19(weights='imagenet', include_top=True)
 model = tf.keras.models.Model(inputs=vgg19.input, outputs=vgg19.get_layer('fc2').output)
 
 
-def frames_to_vectors(input_path, output_name):
+def frames_to_vectors(input_path, output_path, output_name):
     all_features = []
     listing = os.listdir(input_path)
     for frame in listing:
@@ -15,10 +15,23 @@ def frames_to_vectors(input_path, output_name):
         x = np.expand_dims(x, axis=0)
         x = tf.keras.applications.vgg19.preprocess_input(x)
         features = model.predict(x).reshape(4096)
-        print(features)
         all_features.append(features)
-    np.savetxt(output_name + ".csv", all_features, delimiter=",")
+    np.savetxt(output_path+output_name + ".csv", all_features, delimiter=",")
+
+
+def run_feature_extractor(input_path, output_path, dict_directory):
+    if dict_directory:
+        frames_to_vectors(input_path, output_path, "dict")
+    else:
+        listing = os.listdir(input_path)
+        progress_count = 0
+        for directory in listing:
+            progress_count += 1
+            print("# progress: " + str(progress_count) + '/' + str(len(listing)))
+            frames_to_vectors(input_path+directory+"/", output_path, directory)
 
 
 if __name__ == '__main__':
-    frames_to_vectors(r"/home/user/input_path/", "file_name", 0)
+    run_feature_extractor(r"/home/arnaldo/Documentos/aie-dataset-separada/dict-frames/", r"/home/arnaldo/Documentos/aie-dataset-separada/csv/", True)
+    run_feature_extractor(r"/home/arnaldo/Documentos/aie-dataset-separada/validation-frames/assault-frames/", r"/home/arnaldo/Documentos/aie-dataset-separada/csv/assault/", False)
+    run_feature_extractor(r"/home/arnaldo/Documentos/aie-dataset-separada/validation-frames/non-assault-frames/", r"/home/arnaldo/Documentos/aie-dataset-separada/csv/non-assault/", False)
