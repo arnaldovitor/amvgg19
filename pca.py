@@ -20,7 +20,7 @@ def apply_pca(X, Y, n_components, output_path):
     pca.fit(X)
     X = pca.transform(X)
     data = pd.concat([pd.DataFrame(X), Y], axis=1)
-    data.to_csv(output_path+str(n_components)+"_c_n_validation.csv", index=False, header=False)
+    data.to_csv(output_path+str(n_components)+"_validation.csv", index=False, header=False)
 
 
 if __name__ == '__main__':
