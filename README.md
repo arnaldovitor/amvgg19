@@ -10,5 +10,5 @@ B. feature_extractor.py
 C. vbow.py
 > Módulo de Visual Bag of Words. Recebe os feature vectors obtidos pela VGG-19 e retorna uma lista de histogramas afim de serem utilizados posteriormente em um classificador.
 
-C. pca.py
+D. pca.py
 > Módulo de redução de dimensionalidade afim de fazer alguns testes de melhora de accuracy, usa o PCA da biblioteca scikit-learn. 
