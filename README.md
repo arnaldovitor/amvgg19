@@ -12,3 +12,9 @@ C. vbow.py
 
 D. pca.py
 > Módulo de redução de dimensionalidade afim de fazer alguns testes de melhora de accuracy, usa o PCA da biblioteca scikit-learn. 
+
+E. classifiers.py
+> Módulo com classificadores e funções que ajudam a avaliar a eficácia do método proposto em comparação a outros.
+
+F. util.py
+> Módulo com funções úteis para todos os outros módulos do método.
