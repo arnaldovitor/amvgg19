@@ -21,16 +21,22 @@ def gen_vbow(input_path, output_name, kmeans, class_id):
     vbow = []
     listing = os.listdir(input_path)
     for csv_name in listing:
-        feature_vectors = pd.read_csv(input_path+csv_name)
-        histogram = gen_histogram(feature_vectors, kmeans)
-        histogram = np.append(histogram, class_id)
-        vbow.append(histogram)
+        try:
+            feature_vectors = pd.read_csv(input_path+csv_name)
+            histogram = gen_histogram(feature_vectors, kmeans)
+            histogram = np.append(histogram, class_id)
+            vbow.append(histogram)
+        except:
+            histogram = np.zeros(500)
+            histogram = np.append(histogram, class_id)
+            vbow.append(histogram)
+
     np.savetxt(output_name+".csv", vbow, delimiter=",")
 
 
 if __name__ == '__main__':
-    dict = pd.read_csv(r"/home/arnaldo/Documentos/aie-dataset-separada/csv/dict.csv")
-    kmeans = clustering(dict, 500, 64)
-    gen_vbow(r"/home/arnaldo/Documentos/aie-dataset-separada/csv/assault/", "/home/arnaldo/Documentos/aie-dataset-separada/csv/assault_validation", kmeans, 1)
-    gen_vbow(r"/home/arnaldo/Documentos/aie-dataset-separada/csv/non-assault/", "/home/arnaldo/Documentos/aie-dataset-separada/csv/non_assault_validation", kmeans, 0)
+    dict = pd.read_csv(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/dict.csv")
+    kmeans = clustering(dict, 500, 1024)
+    gen_vbow(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/assault/", "/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/assault_validation", kmeans, 1)
+    gen_vbow(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/non-assault/", "/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/non_assault_validation", kmeans, 0)
 

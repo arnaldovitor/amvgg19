@@ -3,6 +3,7 @@ from sklearn.decomposition import PCA
 import pandas as pd
 import util
 
+
 def apply_pca(x, y, n_components, output_path):
     scaler = StandardScaler()
     scaler.fit(x)

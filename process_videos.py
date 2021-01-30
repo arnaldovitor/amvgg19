@@ -36,6 +36,7 @@ def rgb_to_flow(frame, next_frame):
 def videos_to_frames(input_path, output_path, interval, dict_directory):
     listing = os.listdir(input_path)
     progress_count = 0
+
     for video_name in listing:
         progress_count += 1
         print("# progress: "+str(progress_count)+'/'+str(len(listing)))
@@ -48,16 +49,17 @@ def videos_to_frames(input_path, output_path, interval, dict_directory):
             flow_frame = rgb_to_flow(frame, next_frame)
 
             if dict_directory:
-                cv.imwrite(output_path+video_name[:-4]+"_"+str(i)+"_rgb_.png", frame)
-                cv.imwrite(output_path+video_name[:-4]+"_"+str(i)+"_flow_.png", flow_frame)
+                cv.imwrite(output_path+video_name[:-4]+"_"+str(i)+"_rgb.png", frame)
+                cv.imwrite(output_path+video_name[:-4]+"_"+str(i)+"_flow.png", flow_frame)
             else:
                 if not os.path.exists(output_path+video_name[:-4]):
                     os.mkdir(output_path + video_name[:-4])
-                cv.imwrite(output_path+video_name[:-4]+"/"+video_name[:-4]+"_"+str(i)+"_rgb_.png", frame)
+                cv.imwrite(output_path+video_name[:-4]+"/"+video_name[:-4]+"_"+str(i)+"_rgb.png", frame)
                 cv.imwrite(output_path+video_name[:-4]+"/"+video_name[:-4]+"_"+str(i)+"_flow.png", flow_frame)
 
-
 if __name__ == '__main__':
-    videos_to_frames(r"/home/arnaldo/Documentos/aie-dataset-separada/dict/", r"/home/arnaldo/Documentos/aie-dataset-separada/dict-frames/", 10, True)
-    videos_to_frames(r"/home/arnaldo/Documentos/aie-dataset-separada/validation/assault/", r"/home/arnaldo/Documentos/aie-dataset-separada/validation-frames/assault-frames/", 10, False)
-    videos_to_frames(r"/home/arnaldo/Documentos/aie-dataset-separada/validation/non-assault/", r"/home/arnaldo/Documentos/aie-dataset-separada/validation-frames/non-assault-frames/", 10, False)
+    #videos_to_frames(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/dict/", r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/dict-frames/", 30, True)
+    #videos_to_frames(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/train/assault/", r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/train-frames/assault-frames/", 30, False)
+    #videos_to_frames(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/train/non-assault/", r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/train-frames/non-assault-frames/", 30, False)
+    #videos_to_frames(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/test/assault/", r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/test-frames/assault-frames/", 30, False)
+    videos_to_frames(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/test/non-assault/", r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/test-frames/non-assault-frames/", 30, False)
