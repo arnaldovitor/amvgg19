@@ -3,9 +3,11 @@ from sklearn.neural_network import MLPClassifier
 import util
 from sklearn import metrics
 from sklearn.calibration import CalibratedClassifierCV
+from sklearn.tree import DecisionTreeClassifier
 import numpy as np
 import os
 import math
+import tensorflow as tf
 from sklearn.metrics import confusion_matrix
 
 
@@ -23,10 +25,50 @@ def apply_svm(x_train, y_train, x_test, y_test, kernel):
 
     return clf, clf_calibrated, y_pred
 
+def apply_tree(x_train, y_train, x_test, y_test):
+    clf = DecisionTreeClassifier()
+    clf = clf.fit(x_train, y_train)
+    y_pred = clf.predict(x_test)
+    print("\n # Decision Tree accuracy:", metrics.accuracy_score(y_test, y_pred))
+    return y_pred
+
+
 def apply_mlp(x_train, y_train, x_test, y_test):
     clf = MLPClassifier(random_state=1, max_iter=300)
     clf.fit(x_train, y_train)
-    print("\n # MLP accuracy:", clf.score(x_test, y_test))
+    y_pred = clf.predict(x_test)
+    #print("\n # MLP accuracy:", clf.score(x_test, y_test))
+    return y_pred
+
+def apply_fcn(x_train, y_train, x_test, y_test):
+    class Predictor(tf.keras.Model):
+        def __init__(self):
+            super(Predictor, self).__init__()
+            self.dense0 = tf.keras.layers.Dense(128, activation=tf.nn.relu)
+            self.dense1 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
+            self.dense2 = tf.keras.layers.Dense(32, activation=tf.nn.relu)
+            self.dense3 = tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
+            self.dropout_layer = tf.keras.layers.Dropout(rate=0.4)
+
+        def call(self, inputs):
+            x = self.dense0(inputs)
+            x = self.dropout_layer(x)
+            x = self.dense1(x)
+            x = self.dense2(x)
+            x = self.dense3(x)
+            return x
+
+    model = Predictor()
+
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+                     loss=tf.keras.losses.BinaryCrossentropy(),
+                     metrics=[tf.keras.metrics.BinaryAccuracy(), ])
+
+    history = model.fit(x_train, y_train, epochs=4000, validation_data=(x_test, y_test))
+    model.save('model_path/', save_format='tf')
+    y_pred = model.predict(x_test)
+
+    return y_pred
 
 def apply_comb(clf_handcrafted, clf_learned, x_test_handcrafted, x_test_learned, y_test):
     all_a = [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
@@ -90,18 +132,18 @@ def get_videos_name(class_1_path, class_0_path, index_list):
 
 if __name__ == '__main__':
 
-    #x_train, y_train = util.separe_data(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_amvgg19_interval_4/csv/train.csv", 500)
-    #x_test, y_test = util.separe_data(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_amvgg19_interval_4/csv/test.csv", 500)
-    #clf_learned, clf_learned_calibrated, y_pred_learned = apply_svm(x_train, y_train, x_test, y_test, 'rbf')
-    #x_test_learned = x_test
+    x_train, y_train = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_handcrafted/train_handcrafted_ucf_crime_indoor.csv", 2048)
+    x_test, y_test = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_handcrafted/test_handcrafted_ucf_crime_indoor.csv", 2048)
+    clf_learned, clf_learned_calibrated, y_pred_learned = apply_svm(x_train, y_train, x_test, y_test, 'rbf')
+    x_test_learned = x_test
     '''
     tn, fp, fn, tp = confusion_matrix(y_test, y_pred_learned).ravel()
     print('# learned fpr:', (fp/(fp+tn))*100)
     print('# learned fnr:', (fn/(fn+tp))*100)
     '''
 
-    x_train, y_train = util.separe_data(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/output_mosift/csv/train.csv", 500)
-    x_test, y_test = util.separe_data(r"/home/arnaldo/Documentos/cctv-fight-dataset-separada/output_mosift/csv/test.csv", 500)
+    x_train, y_train = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_learned/train_learned_ucf_crime_indoor.csv", 2048)
+    x_test, y_test = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_learned/test_learned_ucf_crime_indoor.csv", 2048)
     clf_handcrafted, clf_handcrafted_calibrated, y_pred_handcrafted = apply_svm(x_train, y_train, x_test, y_test, 'rbf')
     x_test_handcrafted = x_test
 

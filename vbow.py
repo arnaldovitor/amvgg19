@@ -2,7 +2,7 @@ from sklearn.cluster import MiniBatchKMeans
 import numpy as np
 import pandas as pd
 import os
-
+import pickle
 
 def clustering(dict, n_clusters, batch_size):
     kmeans = MiniBatchKMeans(n_clusters=n_clusters, batch_size=batch_size).fit(dict)
@@ -20,6 +20,7 @@ def gen_histogram(feature_vectors, kmeans):
 def gen_vbow(input_path, output_name, kmeans, class_id):
     vbow = []
     listing = os.listdir(input_path)
+    listing.sort()
     for csv_name in listing:
         try:
             feature_vectors = pd.read_csv(input_path+csv_name)
@@ -27,7 +28,7 @@ def gen_vbow(input_path, output_name, kmeans, class_id):
             histogram = np.append(histogram, class_id)
             vbow.append(histogram)
         except:
-            histogram = np.zeros(500)
+            histogram = np.zeros(1024)
             histogram = np.append(histogram, class_id)
             vbow.append(histogram)
 
@@ -35,8 +36,11 @@ def gen_vbow(input_path, output_name, kmeans, class_id):
 
 
 if __name__ == '__main__':
-    dict = pd.read_csv(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/dict.csv")
-    kmeans = clustering(dict, 500, 1024)
-    gen_vbow(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/assault/", "/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/assault_validation", kmeans, 1)
-    gen_vbow(r"/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/non-assault/", "/home/arnaldo/Documentos/rwf-2000-dataset-separada/csv/non_assault_validation", kmeans, 0)
-
+    dict = pd.read_csv(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/dict.csv")
+    kmeans = clustering(dict, 256, 32)
+    pickle.dump(kmeans, open("clt.pkl", "wb"))
+    print("# clustering ended")
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_violence_1024", kmeans, 1)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_non_violence_1024", kmeans, 0)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_violence_1024", kmeans, 1)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_non_violence_1024", kmeans, 0)
