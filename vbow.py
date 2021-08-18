@@ -28,19 +28,17 @@ def gen_vbow(input_path, output_name, kmeans, class_id):
             histogram = np.append(histogram, class_id)
             vbow.append(histogram)
         except:
-            histogram = np.zeros(1024)
-            histogram = np.append(histogram, class_id)
-            vbow.append(histogram)
+            pass
 
     np.savetxt(output_name+".csv", vbow, delimiter=",")
 
 
 if __name__ == '__main__':
     dict = pd.read_csv(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/dict.csv")
-    kmeans = clustering(dict, 256, 32)
+    kmeans = clustering(dict, 128, 32)
     pickle.dump(kmeans, open("clt.pkl", "wb"))
     print("# clustering ended")
-    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_violence_1024", kmeans, 1)
-    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_non_violence_1024", kmeans, 0)
-    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_violence_1024", kmeans, 1)
-    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_non_violence_1024", kmeans, 0)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_violence", kmeans, 1)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train_non_violence", kmeans, 0)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_violence", kmeans, 1)
+    gen_vbow(r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/non-violence/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test_non_violence", kmeans, 0)

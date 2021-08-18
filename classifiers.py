@@ -32,7 +32,6 @@ def apply_tree(x_train, y_train, x_test, y_test):
     print("\n # Decision Tree accuracy:", metrics.accuracy_score(y_test, y_pred))
     return y_pred
 
-
 def apply_mlp(x_train, y_train, x_test, y_test):
     clf = MLPClassifier(random_state=1, max_iter=300)
     clf.fit(x_train, y_train)
@@ -44,11 +43,11 @@ def apply_fcn(x_train, y_train, x_test, y_test):
     class Predictor(tf.keras.Model):
         def __init__(self):
             super(Predictor, self).__init__()
-            self.dense0 = tf.keras.layers.Dense(128, activation=tf.nn.relu)
-            self.dense1 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
-            self.dense2 = tf.keras.layers.Dense(32, activation=tf.nn.relu)
+            self.dense0 = tf.keras.layers.Dense(64, activation=tf.nn.relu)
+            self.dense1 = tf.keras.layers.Dense(32, activation=tf.nn.relu)
+            self.dense2 = tf.keras.layers.Dense(16, activation=tf.nn.relu)
             self.dense3 = tf.keras.layers.Dense(1, activation=tf.nn.sigmoid)
-            self.dropout_layer = tf.keras.layers.Dropout(rate=0.4)
+            self.dropout_layer = tf.keras.layers.Dropout(rate=0.1)
 
         def call(self, inputs):
             x = self.dense0(inputs)
@@ -60,11 +59,11 @@ def apply_fcn(x_train, y_train, x_test, y_test):
 
     model = Predictor()
 
-    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4),
+    model.compile(optimizer=tf.keras.optimizers.Adam(learning_rate=5e-5),
                      loss=tf.keras.losses.BinaryCrossentropy(),
                      metrics=[tf.keras.metrics.BinaryAccuracy(), ])
 
-    history = model.fit(x_train, y_train, epochs=4000, validation_data=(x_test, y_test))
+    history = model.fit(x_train, y_train, epochs=800, validation_data=(x_test, y_test))
     model.save('model_path/', save_format='tf')
     y_pred = model.predict(x_test)
 
@@ -76,7 +75,7 @@ def apply_comb(clf_handcrafted, clf_learned, x_test_handcrafted, x_test_learned,
 
     for a in all_a:
         y_pred_comb = []
-        for i in range(len(x_test)):
+        for i in range(len(x_test_learned)):
             # o primeiro valor do índice corresponde ao valor do índice de y_test
             pred_proba_handcrafted = clf_handcrafted.predict_proba(x_test_handcrafted[i:i+1])
             pred_proba_learned = clf_learned.predict_proba(x_test_learned[i:i+1])
@@ -91,7 +90,6 @@ def apply_comb(clf_handcrafted, clf_learned, x_test_handcrafted, x_test_learned,
         all_combinations.append(acc)
 
     return all_combinations
-
 
 def gen_venn(y_pred_handcrafted, y_pred_learned, y_test):
     handcrafted = 0
@@ -119,7 +117,6 @@ def gen_venn(y_pred_handcrafted, y_pred_learned, y_test):
 
     return handcrafted, learned, both, error, handcrafted_i, learned_i, both_i, error_i
 
-
 def get_videos_name(class_1_path, class_0_path, index_list):
     listing_1 = os.listdir(class_1_path)
     listing_0 = os.listdir(class_0_path)
@@ -129,54 +126,25 @@ def get_videos_name(class_1_path, class_0_path, index_list):
         if i in index_list:
             print(listing[i])
 
+def normalize_x(x):
+  coef = np.max(x, axis=0)
+  coef[coef == 0] = np.max(coef)
+  x = x/coef[None, :]
+  np.save("maximus.npy", coef)
+
+  return x
+
+def normalize_x_test(x):
+    coef = np.load("maximus.npy")
+    x = x/coef[None, :]
+    return x
+
 
 if __name__ == '__main__':
+    X, y = util.separe_data(r"train.csv", 128)
+    X = normalize_x(X)
 
-    x_train, y_train = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_handcrafted/train_handcrafted_ucf_crime_indoor.csv", 2048)
-    x_test, y_test = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_handcrafted/test_handcrafted_ucf_crime_indoor.csv", 2048)
-    clf_learned, clf_learned_calibrated, y_pred_learned = apply_svm(x_train, y_train, x_test, y_test, 'rbf')
-    x_test_learned = x_test
-    '''
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred_learned).ravel()
-    print('# learned fpr:', (fp/(fp+tn))*100)
-    print('# learned fnr:', (fn/(fn+tp))*100)
-    '''
+    X_val, y_val = util.separe_data(r"val.csv", 128)
+    X_val = normalize_x_test(X_val)
 
-    x_train, y_train = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_learned/train_learned_ucf_crime_indoor.csv", 2048)
-    x_test, y_test = util.separe_data(r"/home/arnaldo/Documents/ucf-crime-indoor-dataset-separada/csv_learned/test_learned_ucf_crime_indoor.csv", 2048)
-    clf_handcrafted, clf_handcrafted_calibrated, y_pred_handcrafted = apply_svm(x_train, y_train, x_test, y_test, 'rbf')
-    x_test_handcrafted = x_test
-
-    #all_cc = apply_comb(clf_handcrafted, clf_learned, x_test_handcrafted, x_test_learned, y_test)
-    #print(all_cc)
-
-    '''
-    tn, fp, fn, tp = confusion_matrix(y_test, y_pred_handcrafted).ravel()
-    print('# handcrafted fpr:', (fp/(fp+tn))*100)
-    print('# handcrafted fnr:', (fn/(fn+tp))*100)
-
-    
-    handcrafted, learned, both, error, handcrafted_i, learned_i, both_i, error_i = gen_venn(y_pred_handcrafted, y_pred_learned, np.array(y_test))
-
-    print('\n # handcrafted:', handcrafted)
-    print(handcrafted_i)
-    print('\n # learned:', learned)
-    print(learned_i)
-    print('\n # both:', both)
-    print(both_i)
-    print('\n # error:', error)
-    print(error_i)
-
-    
-    print('\n # learned videos name')
-    get_videos_name(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/assault/", r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/non-assault/", learned_i)
-
-    print('\n # handcrafted videos name')
-    get_videos_name(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/assault/", r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/non-assault/", handcrafted_i)
-
-    print('\n # both videos name')
-    get_videos_name(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/assault/", r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/non-assault/", both_i)
-
-    print('\n # error videos name')
-    get_videos_name(r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/assault/", r"/home/arnaldo/Documentos/violent-flows-dataset-separada/output_mosift/csv/non-assault/", error_i)
-    '''
+    y_pred = apply_fcn(X, y, X_val, y_val)

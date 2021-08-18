@@ -35,7 +35,7 @@ def run_feature_extractor(input_path, output_path, dict_directory, interval):
 
 
 if __name__ == '__main__':
-    #run_feature_extractor(r"/home/arnaldo/Documents/violent-flows-dataset-separada/dict-frames/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/", True, 1)
+    run_feature_extractor(r"/home/arnaldo/Documents/violent-flows-dataset-separada/dict-frames/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/", True, 1)
     run_feature_extractor(r"/home/arnaldo/Documents/violent-flows-dataset-separada/train-frames/violence-frames/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/violence/", False, 1)
     run_feature_extractor(r"/home/arnaldo/Documents/violent-flows-dataset-separada/train-frames/non-violence-frames/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/train/non-violence/", False, 1)
     run_feature_extractor(r"/home/arnaldo/Documents/violent-flows-dataset-separada/test-frames/violence-frames/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/csv/test/violence/", False, 1)

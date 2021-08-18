@@ -34,6 +34,7 @@ def rgb_to_flow(frame, next_frame):
 
 
 def videos_to_frames(input_path, output_path, interval, dict_directory, crop):
+
     listing = os.listdir(input_path)
     progress_count = 0
 
@@ -67,6 +68,26 @@ def videos_to_frames(input_path, output_path, interval, dict_directory, crop):
                         cv.imwrite(output_path+video_name[:-4]+"/"+video_name[:-4]+"_"+str(i)+"_flow.png", flow_frame)
             except:
                 print('Error in video: {} and frame: {}'.format(video_name, i))
+
+def single_video_to_frames(video_path, output_path, interval):
+    frames = count_frames(video_path)
+    crop_i = 1
+    video_name = video_path.split("/")[-1]
+
+    for i in range(0, frames - 1, interval):
+
+        ret, frame = capture_frame(video_path, i)
+        ret, next_frame = capture_frame(video_path, i + 1)
+        flow_frame = rgb_to_flow(frame, next_frame)
+
+        if not os.path.exists(output_path + video_name[:-4]):
+            os.mkdir(output_path + video_name[:-4])
+        if i % 90 == 0:
+            crop_i = crop_i * 10
+        if not os.path.exists(output_path + video_name[:-4] + "/" + str(crop_i)):
+            os.mkdir(output_path + video_name[:-4] + "/" + str(crop_i))
+        cv.imwrite(output_path + video_name[:-4] + "/" + str(crop_i) + "/" + video_name[:-4] + "_" + str(i) + "_rgb.png", frame)
+        cv.imwrite(output_path + video_name[:-4] + "/" + str(crop_i) + "/" + video_name[:-4] + "_" + str(i) + "_flow.png", flow_frame)
 
 if __name__ == '__main__':
     videos_to_frames(r"/home/arnaldo/Documents/violent-flows-dataset-separada/dict/", r"/home/arnaldo/Documents/violent-flows-dataset-separada/dict-frames/", 1,True, False)
