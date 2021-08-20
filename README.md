@@ -19,7 +19,7 @@ E. classifiers.py
 F. util.py
 > Módulo com funções úteis para todos os outros módulos do método.
 
-H. youtube.py
+G. youtube.py
 > Módulo com função para baixar vídeos do YouTube caso deseje testar o método em outras fontes.
 
 H. view.py
